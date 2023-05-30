@@ -14,12 +14,15 @@ import com.mestKom.security.token.TokenConfig
 import com.mestKom.security.token.TokenService
 import com.mestKom.sources.UserDataSource
 import io.ktor.http.*
+import io.ktor.http.ContentDisposition.Companion.File
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.runBlocking
+import java.io.File
+import java.util.UUID
 
 fun Route.signUp(
     hashingService: HashingService,
@@ -27,7 +30,7 @@ fun Route.signUp(
 ){
     post("signup") {
         val request = kotlin.runCatching { call.receiveNullable<RegRequest>() }.getOrNull() ?: kotlin.run{
-            call.respond(HttpStatusCode.BadRequest)
+            call.respond(HttpStatusCode.Conflict, "Not json")
             return@post
         }
         val areFieldsBlank = request.username.isBlank() || request.password.isBlank()
@@ -58,12 +61,13 @@ fun Route.signUp(
         }
 
         val saltedHash = hashingService.generateSaltedHash(request.password)
+        val id = UUID.randomUUID().toString()
         val user = User(
             username = request.username,
             password = saltedHash.hash,
             salt = saltedHash.salt,
-            email = request.email, // сделать запрос
-            id = (0 .. 1000000).random() //last id
+            email = request.email,
+            sequelId = id
         )
 
                     val wasAcknowledged = userDataSource.insertUser(user)
@@ -72,9 +76,10 @@ fun Route.signUp(
                         return@post
 
     }
+    val f = File("D:\\video", id)
+        f.mkdir()
 
-
-        call.respond(HttpStatusCode.OK)
+        call.respond(HttpStatusCode.OK, message = AuthResponse(id, request.username, email = request.email, id))
     }
 }
 
@@ -111,14 +116,17 @@ fun Route.signIn(
             config = tokenConfig,
             TokenClaim(
                 name = "UserId",
-                value = user.id.toString()
+                value = user.sequelId
             )
         )
 
         call.respond(
             status = HttpStatusCode.OK,
             message = AuthResponse(
-                token = token
+                token = token,
+                id = user.sequelId,
+                username = user.username,
+                email = user.email
             )
         )
     }

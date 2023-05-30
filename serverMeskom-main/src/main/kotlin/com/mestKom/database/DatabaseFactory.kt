@@ -1,6 +1,7 @@
 package com.mestKom.database
 
 import com.mestKom.data.tables.Users
+import com.mestKom.data.tables.Videos
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.Database
@@ -20,6 +21,7 @@ object DatabaseFactory {
 
         transaction(database) {
             SchemaUtils.create(Users)
+            SchemaUtils.create(Videos)
         }
     }
 

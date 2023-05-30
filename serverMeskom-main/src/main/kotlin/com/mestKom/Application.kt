@@ -1,4 +1,4 @@
-package com.mestKom
+    package com.mestKom
 
 import com.mestKom.data.user.User
 import com.mestKom.database.DatabaseFactory
@@ -11,10 +11,11 @@ import com.mestKom.security.token.JwtTokenService
 import com.mestKom.security.token.TokenConfig
 import com.mestKom.sources.DatabaseDataSource
 import com.mestKom.sources.UserDataSource
+import com.mestKom.sources.VideoDataSource
 import kotlinx.coroutines.runBlocking
 
 fun main() {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
+    embeddedServer(Netty, port = 8080, host = "192.168.0.7", module = Application::module)
         .start(wait = true)
 }
 
@@ -22,22 +23,18 @@ fun Application.module() {
     configureSerialization()
     DatabaseFactory.init()
     val userDataSource = DatabaseDataSource()
+    val videoDataSource = DatabaseDataSource()
     val tokenService = JwtTokenService()
     val tokenConfig = TokenConfig(
-        issuer = "http://0.0.0.0:8080",
+        issuer = "http://192.168.0.7:8080",
         audience = "Users",
         expiresIn = 365L * 1000L * 60L * 60L * 24L,
         secret = System.getenv("JWT_SECRET")
     )
     val hashingService = SHA256HashingService()
-//    val source: UserDataSource = DatabaseDataSource()
-//    source.run {
-//        runBlocking {
-//            insertUser(User(username = "test", password = "test", email = "test@test.tt", salt = "222", id = (0 .. 1000000).random()))
-//        }
-//    }
+
 
     configureMonitoring()
     configureSecurity(tokenConfig)
-    configureRouting(userDataSource, hashingService, tokenService, tokenConfig)
+    configureRouting(userDataSource, hashingService, tokenService, tokenConfig, videoDataSource)
 }

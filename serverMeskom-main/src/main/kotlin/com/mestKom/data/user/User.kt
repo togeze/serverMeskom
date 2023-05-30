@@ -5,6 +5,6 @@ data class User (
     val password: String,
     val email: String,
     val salt: String,
-    val id: Int
+    val sequelId: String
     )
 
