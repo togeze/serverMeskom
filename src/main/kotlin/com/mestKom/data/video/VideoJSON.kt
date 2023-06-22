@@ -8,5 +8,4 @@ data class VideoJSON(
     val description: String,
     val longitude: String,
     val latitude: String
-
 )

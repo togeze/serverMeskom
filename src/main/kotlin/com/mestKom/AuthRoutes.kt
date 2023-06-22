@@ -1,30 +1,28 @@
 package com.mestKom
 
-import com.mestKom.data.tables.Users
-import com.mestKom.data.tables.Users.username
+import com.mestKom.data.tables.Users.defaultExpression
 import com.mestKom.data.user.User
 import com.mestKom.requests.AuthRequest
 import com.mestKom.requests.RegRequest
 import com.mestKom.responses.AuthResponse
-import com.mestKom.responses.UserResponse
 import com.mestKom.security.hashing.HashingService
-import com.mestKom.security.hashing.SHA256HashingService
 import com.mestKom.security.hashing.SaltedHash
 import com.mestKom.security.token.TokenClaim
 import com.mestKom.security.token.TokenConfig
 import com.mestKom.security.token.TokenService
 import com.mestKom.sources.UserDataSource
 import io.ktor.http.*
-import io.ktor.http.ContentDisposition.Companion.File
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.coroutines.runBlocking
+import org.jetbrains.exposed.sql.javatime.CurrentDateTime
 import java.io.File
-import java.util.UUID
+import java.time.LocalDateTime
+import java.util.*
+
 
 fun Route.signUp(
     hashingService: HashingService,
@@ -42,10 +40,13 @@ fun Route.signUp(
 
         //Провекра на свободный email
         if(checkUserByEmail != null){
-            call.respond(HttpStatusCode.Conflict, "Email us busy")
+            call.respond(HttpStatusCode.Conflict, "Email is busy")
             return@post
         }
-
+        if(request.username.length > 12){
+            call.respond(HttpStatusCode.Conflict, "Username length is less than 12 characters")
+            return@post
+        }
         //Проверка на существованния пользователя
         if(checkUserByUsername != null){
             call.respond(HttpStatusCode.Conflict, "User is busy")
@@ -58,7 +59,7 @@ fun Route.signUp(
         }
         //Проверка на пусты поля
         if(areFieldsBlank){
-            call.respond(HttpStatusCode.Conflict, "Password or email us empty")
+            call.respond(HttpStatusCode.Conflict, "Password or email is empty")
             return@post
         }
 
@@ -69,7 +70,8 @@ fun Route.signUp(
             password = saltedHash.hash,
             salt = saltedHash.salt,
             email = request.email,
-            sequelId = id
+            sequelId = id,
+            dateRegistration = LocalDateTime.now()
         )
 
                     val wasAcknowledged = userDataSource.insertUser(user)
@@ -78,9 +80,8 @@ fun Route.signUp(
                         return@post
 
     }
-    val f = File("D:\\video", id)
+        val f = File("D:\\video", id)
         f.mkdir()
-
         call.respond(HttpStatusCode.OK, message = AuthResponse(id, request.username, email = request.email, id))
     }
 }

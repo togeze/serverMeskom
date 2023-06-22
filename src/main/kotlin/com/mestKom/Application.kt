@@ -9,6 +9,7 @@ import com.mestKom.plugins.*
 import com.mestKom.security.hashing.SHA256HashingService
 import com.mestKom.security.token.JwtTokenService
 import com.mestKom.security.token.TokenConfig
+import com.mestKom.sources.CommentDataSource
 import com.mestKom.sources.DatabaseDataSource
 import com.mestKom.sources.UserDataSource
 import com.mestKom.sources.VideoDataSource
@@ -24,6 +25,7 @@ fun Application.module() {
     DatabaseFactory.init()
     val userDataSource = DatabaseDataSource()
     val videoDataSource = DatabaseDataSource()
+    val commentDataSource = DatabaseDataSource()
     val tokenService = JwtTokenService()
     val tokenConfig = TokenConfig(
         issuer = "http://192.168.0.7:8080",
@@ -36,5 +38,5 @@ fun Application.module() {
 
     configureMonitoring()
     configureSecurity(tokenConfig)
-    configureRouting(userDataSource, hashingService, tokenService, tokenConfig, videoDataSource)
+    configureRouting(userDataSource, hashingService, tokenService, tokenConfig, videoDataSource, commentDataSource)
 }

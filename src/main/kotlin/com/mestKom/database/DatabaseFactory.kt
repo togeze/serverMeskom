@@ -1,5 +1,6 @@
 package com.mestKom.database
 
+import com.mestKom.data.tables.Comments
 import com.mestKom.data.tables.Users
 import com.mestKom.data.tables.Videos
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +23,7 @@ object DatabaseFactory {
         transaction(database) {
             SchemaUtils.create(Users)
             SchemaUtils.create(Videos)
+            SchemaUtils.create(Comments)
         }
     }
 

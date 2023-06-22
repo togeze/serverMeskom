@@ -1,9 +1,6 @@
 package com.mestKom.responses
-
 @kotlinx.serialization.Serializable
-data class UserResponse(
+data class CommentResponse(
     val username: String,
-    val email: String,
-    val id: String,
-    val date: String
+    val text: String
 )

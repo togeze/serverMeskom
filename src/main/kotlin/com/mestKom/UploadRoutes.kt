@@ -88,7 +88,7 @@ fun Route.getVideo(videoDataSource: VideoDataSource){
         val file = File(video!!.path)
         call.response.header(
             HttpHeaders.ContentDisposition,
-            ContentDisposition.Attachment.withParameter(ContentDisposition.Parameters.FileName, "video").toString()
+            ContentDisposition.Attachment.withParameter(ContentDisposition.Parameters.FileName, video.name).toString()
         )
         call.respondFile(file)
     }

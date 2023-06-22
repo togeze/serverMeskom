@@ -17,12 +17,12 @@ fun Route.updateData(userDataSource: UserDataSource){
             return@post
         }
         val user = userDataSource.getUserById(request.id)
-        println("ASDHASOIDHVIASDIVASIDVHABSDVHI ${user?.sequelId}, ${request.id}")
         if(user == null){
             call.respond(HttpStatusCode.Conflict, message = "User not found")
             return@post
         }
-        call.respond(HttpStatusCode.OK, message = UserResponse(user!!.username , user!!.email, user!!.sequelId))
+
+        call.respond(HttpStatusCode.OK, message = UserResponse(user!!.username , user!!.email, user!!.sequelId, user.dateRegistration.toString()))
     }
 }
 

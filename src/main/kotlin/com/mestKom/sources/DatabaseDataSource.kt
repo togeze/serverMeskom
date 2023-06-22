@@ -1,5 +1,7 @@
 package com.mestKom.sources
 
+import com.mestKom.data.Comment.Comment
+import com.mestKom.data.tables.Comments
 import com.mestKom.data.tables.Users
 import com.mestKom.data.tables.Videos
 import com.mestKom.data.user.User
@@ -8,14 +10,15 @@ import com.mestKom.database.DatabaseFactory.dbQuery
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 
-class DatabaseDataSource : UserDataSource, VideoDataSource {
+class DatabaseDataSource : UserDataSource, VideoDataSource, CommentDataSource {
 
     private fun result(row: ResultRow) = User(
-        username       = row[Users.username],
-        password       = row[Users.password],
-        email          = row[Users.email],
-        salt           = row[Users.salt],
-        sequelId       = row[Users.sequelId]
+        username = row[Users.username],
+        password = row[Users.password],
+        email = row[Users.email],
+        salt = row[Users.salt],
+        sequelId = row[Users.sequelId],
+        dateRegistration = row[Users.dateRegistration]
     )
 
     private fun resultVideo(row: ResultRow) = Video(
@@ -27,10 +30,37 @@ class DatabaseDataSource : UserDataSource, VideoDataSource {
         name = row[Videos.name],
         idVideo = row[Videos.idVideo]
     )
+    private fun resultComment(row: ResultRow) = Comment(
+        idVideo = row[Comments.idVideo],
+        username = row[Comments.username],
+        text = row[Comments.text]
+    )
 
 
     override suspend fun allUsers(): List<User> = dbQuery{
         Users.selectAll().map(::result)
+    }
+
+    override suspend fun getCommentById(videoId: String): List<Comment?> = dbQuery {
+        Comments
+            .select{Comments.idVideo eq videoId}
+            .map(::resultComment)
+    }
+
+    override suspend fun insertComment(comment: Comment): Unit = dbQuery {
+        Comments.insertAndGetId{
+            it[Comments.idVideo] = comment.idVideo
+            it[Comments.username] = comment.username
+            it[Comments.text]    = comment.text
+        }
+    }
+
+    override suspend fun editComment(text: String, idVideo: String, username: String): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun deleteComment(username: String): Boolean {
+        TODO("Not yet implemented")
     }
 
     override suspend fun getUserByUsername(username: String): User? = dbQuery{

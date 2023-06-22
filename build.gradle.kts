@@ -5,6 +5,7 @@ val postgres_version : String by project
 val h2_version : String by project
 val exposed_version: String by project
 val commons_codec_version: String by project
+val java_time: String by project
 
 plugins {
     kotlin("jvm") version "1.8.10"
@@ -44,4 +45,5 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
     implementation("commons-codec:commons-codec:$commons_codec_version")
     implementation("com.google.code.gson:gson:2.8.5")
+    implementation("org.jetbrains.exposed:exposed-java-time:$java_time")
 }
